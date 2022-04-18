@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- task: UiPathPack@2
+  inputs:
+    versionType: 'AutoVersion'
+    projectJsonPath: '$(Build.SourcesDirectory)'
+    orchestratorConnection: 'WeatherProcess-UiDO'
+    outputPath: '$(Build.ArtifactStagingDirectory)\Output'
+- task: UiPathDeploy@2
+  inputs:
+    orchestratorConnection: 'WeatherProcess-UiDO'
+    packagesPath: '$(Build.SourcesDirectory)'
+    folderName: 'MeeFolder'
+    entryPoints: 'Main.xaml'
+- task: UiPathTest@2
+  inputs:
+    testTarget: 'TestProject'
+    orchestratorConnection: 'WeatherProcess-UiDO'
+    testProjectPath: '$(Build.SourcesDirectory)'
+    folderName: 'MeeFolder'
+    testReportDestination: '$(Build.ArtifactStagingDirectory)\Output'
